@@ -60,7 +60,6 @@ public function searchFilter(Request $request)
     ->orWhere('last_name','like','%'.$searchBtn.'%')
     ->orWhere('locker_number','like','%'.$searchBtn.'%')
     ->orWhere('subscription','like','%'.$searchBtn.'%')
-    ->orWhere('user.username', 'like', $searchBtn .'%')
     ->paginate(15);
 
     $admin_distinct = DB::table('locker')

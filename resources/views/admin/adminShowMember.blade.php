@@ -101,9 +101,6 @@
                               <td style = "padding:5px">{{$member->profile_status}}</td>
                             </tr>
                             </table>
-            <br>
-              <a href="/members/{{$member->id}}/change_pw" class="btn btn-danger">Reset password</a>
-
              </div>
                             
               <div class="col-md-6 col-sm-12">

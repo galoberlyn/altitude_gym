@@ -122,9 +122,10 @@ class AdminExpiringLockerController extends Controller
         $print_5 = Input::has('5-selected') ? true : false;
         $print_6 = Input::has('6-selected') ? true : false;
         $print_7 = Input::has('7-selected') ? true : false;
-        $d = $request-> input('date');
-        $d2 = $request-> input('date2');
-        return redirect()->route('locker-export')->with('print_1', $print_1)->with('print_2', $print_2)->with('print_3', $print_3)->with('print_4', $print_4)->with('print_5', $print_5)->with('print_6', $print_6)->with('print_7', $print_7)->with('d', $d)->with('d2', $d2);
+        $year = Input::get('year');
+        $month = Input::get('month');
+        $day = Input::get('day');
+        return redirect()->route('locker-export')->with('print_1', $print_1)->with('print_2', $print_2)->with('print_3', $print_3)->with('print_4', $print_4)->with('print_5', $print_5)->with('print_6', $print_6)->with('print_7', $print_7)->with('year', $year)->with('month', $month)->with('day', $day);
     }
 
     public function lockerExport()
@@ -137,9 +138,11 @@ class AdminExpiringLockerController extends Controller
         if (session('print_4')) {array_push($print, "user_details.user_id AS Member ID");}
         if (session('print_5')) {array_push($print, "user_details.first_name AS First Name");}
         if (session('print_6')) {array_push($print, "user_details.last_name AS Last Name");}
-        if (session('print_7')) {array_push($print, "locker.locker_number AS Locker Set");}
-        $date = session('d');
-        $date2 = session('d2');
+        if (session('print_7')) {array_push($print, "locker.amount AS Amount");}
+        $year = session('year');
+        $month = session('month');
+        $day = session('day');
+        $date = $year."-".$month."-".$day;
 
         $user = User_detail::select($print)
         ->join('locker','locker.id','=','user_details.user_id')
@@ -182,9 +185,10 @@ class AdminExpiringLockerController extends Controller
         $print_2 = Input::has('2-selected') ? true : false;
         $print_3 = Input::has('3-selected') ? true : false;
         $print_4 = Input::has('4-selected') ? true : false;
-        $d = $request-> input('date');
-        $d2 = $request-> input('date2');
-        return redirect()->route('locker-payments-export')->with('print_1', $print_1)->with('print_2', $print_2)->with('print_3', $print_3)->with('print_4', $print_4) ->with('d', $d)->with('d2', $d2);
+        $year = Input::get('year');
+        $month = Input::get('month');
+        $day = Input::get('day');
+        return redirect()->route('locker-payments-export')->with('print_1', $print_1)->with('print_2', $print_2)->with('print_3', $print_3)->with('print_4', $print_4) ->with('year', $year)->with('month', $month)->with('day', $day);
     }
 
     public function lockerPaymentExport()
@@ -195,23 +199,16 @@ class AdminExpiringLockerController extends Controller
         if (session('print_2')) {array_push($print, "user_details.first_name AS Member's first name");}
         if (session('print_3')) {array_push($print, "user_details.last_name AS Member's last name");}
         if (session('print_4')) {array_push($print, "payments.amount AS Amount");}
-        $date = session('d');
-        $date2 = session('d2');
-        if ($date2 < $date && $date2 != ''){
-            return redirect ('reports')->with('error', 'The second date cannot be later than the first date!');
-        }
-        if ($date == ''){
-            $date = date('1990-01-01');
-        }
-        if ($date2 == ''){
-            $date2 = date('2999-12-31');
-        }
+        $year = session('year');
+        $month = session('month');
+        $day = session('day');
+        $date = $year."-".$month."-".$day;
 
-       if ($year > 1999 && $month !=  'MM' && $day != 'DD')
+       if ($year > 1999 && $month !=  'MM' && $day != 'DD'){$generate = true;}
+        if ($generate == true){
             $user = User_detail::select($print)
             ->join('payments','payments.user_id','=','user_details.user_id')
-            ->where('payment_date', '>=', $date)
-            ->where('payment_date', '<=', $date)
+            ->where('payment_date', '=', $date)
             ->where('payment_type', '=', 'locker')
             ->orderBy('payment_date', 'DESC')
             ->get(); 
@@ -219,8 +216,7 @@ class AdminExpiringLockerController extends Controller
             $count = DB::table('user_details')
             ->select(DB::raw("COUNT(payments.id) AS count"))
             ->join('payments','payments.user_id','=','user_details.user_id')
-            ->where('payment_date', '>=', $date)
-            ->where('payment_date', '<=', $date)
+            ->where('payment_date', '=', $date)
             ->where('payment_type', '=', 'locker')
             ->orderBy('payment_date', 'DESC')
             ->value('count');
@@ -228,17 +224,16 @@ class AdminExpiringLockerController extends Controller
             $total = DB::table('user_details')
             ->select(DB::raw("SUM(amount) AS count"))
             ->join('payments','payments.user_id','=','user_details.user_id')
-            ->where('payment_date', '>=', $date)
-            ->where('payment_date', '<=', $date)
+            ->where('payment_date', '=', $date)
             ->where('payment_type', '=', 'locker')
             ->orderBy('payment_date', 'DESC')
             ->value('count');
 
-            return Excel::create('locker-payments-'.$date, function($excel) use ($user, $date, $date2, $count, $total){
-            $excel->sheet('locker-payments_today', function($sheet) use ($user, $date, $count, $date2, $total){
+            return Excel::create('locker-payments-'.$date, function($excel) use ($user, $date, $count, $total){
+            $excel->sheet('locker-payments_today', function($sheet) use ($user, $date, $count, $total){
                 $sheet  ->fromArray($user)
                         ->prependRow(1, array('Altitude Gym'))
-                        ->prependRow(2, array('Lockers payments for '.$date.'-'.$date2, 'No. of payments: '.$count, 'Total amount: PHP '.$total))
+                        ->prependRow(2, array('Lockers payments for '.$date, 'No. of payments: '.$count, 'Total amount: PHP '.$total))
                         ->setFontFamily("Courier")
                         ->cells('A1:F1', function($cells) {
                             $cells->setFontColor('#8000000');
@@ -254,16 +249,59 @@ class AdminExpiringLockerController extends Controller
                         });
             }); 
         })->download('xls');
-    }
+        }else{
+            $user = User_detail::select($print)
+            ->join('payments','payments.user_id','=','user_details.user_id')
+            ->where('payment_type', '=', 'locker')
+            ->orderBy('payment_date', 'DESC')
+            ->get(); 
 
-    public function prepareMemPaymentExport(Request $request){
+            $count = DB::table('user_details')
+            ->select(DB::raw("COUNT(payments.id) AS count"))
+            ->join('payments','payments.user_id','=','user_details.user_id')
+            ->where('payment_type', '=', 'locker')
+            ->orderBy('payment_date', 'DESC')
+            ->value('count');
+
+            $total = DB::table('user_details')
+            ->select(DB::raw("SUM(amount) AS count"))
+            ->join('payments','payments.user_id','=','user_details.user_id')
+            ->where('payment_type', '=', 'locker')
+            ->orderBy('payment_date', 'DESC')
+            ->value('count');
+
+            return Excel::create('locker-payments-ALL-'.Carbon::parse(Carbon::now())->format('Y-m-d'), function($excel) use ($user, $count, $total){
+            $excel->sheet('locker-payments_sheet', function($sheet) use ($user, $count, $total){
+                $sheet  ->fromArray($user)
+                        ->prependRow(1, array('Altitude Gym'))
+                        ->prependRow(2, array('Locker payments for '.Carbon::parse(Carbon::now())->format('Y-m-d'), 'No. of payments:'.$count, 'Total amount: PHP '.$total))
+                        ->setFontFamily("Courier")
+                        ->cells('A1:F1', function($cells) {
+                            $cells->setFontColor('#8000000');
+                            $cells->setFontFamily('Impact');
+                            $cells->setFontSize('24');
+                        })
+                        ->cells('A2:F2', function($cells) {
+                            $cells->setFontColor('#8000000');
+                        })
+                        ->cells('A3:F3', function($cells) {
+                            $cells->setFontColor('#FF00000');
+                            $cells->setFontWeight('bold');
+                        });
+            }); 
+        })->download('xls');
+
+        }
+    }
+        public function prepareMemPaymentExport(Request $request){
         $print_1 = Input::has('1-selected') ? true : false;
         $print_2 = Input::has('2-selected') ? true : false;
         $print_3 = Input::has('3-selected') ? true : false;
         $print_4 = Input::has('4-selected') ? true : false;
-        $d = $request-> input('date');
-        $d2 = $request-> input('date2');
-        return redirect()->route('mem-payments-export')->with('print_1', $print_1)->with('print_2', $print_2)->with('print_3', $print_3)->with('print_4', $print_4)->with('d', $d)->with('d2', $d2);
+        $year = Input::get('year');
+        $month = Input::get('month');
+        $day = Input::get('day');
+        return redirect()->route('mem-payments-export')->with('print_1', $print_1)->with('print_2', $print_2)->with('print_3', $print_3)->with('print_4', $print_4) ->with('year', $year)->with('month', $month)->with('day', $day);
     }
 
     public function memPaymentExport()
@@ -274,49 +312,41 @@ class AdminExpiringLockerController extends Controller
         if (session('print_2')) {array_push($print, "user_details.first_name AS Member's first name");}
         if (session('print_3')) {array_push($print, "user_details.last_name AS Member's last name");}
         if (session('print_4')) {array_push($print, "payments.amount AS Amount");}
-        $date = session('d');
-        $date2 = session('d2');
-        if ($date2 < $date && $date2 != ''){
-            return redirect ('reports')->with('error', 'The second date cannot be later than the first date!');
-        }
-        if ($date == ''){
-            $date = date('1990-01-01');
-        }
-        if ($date2 == ''){
-            $date2 = date('2999-12-31');
-        }
+        $year = session('year');
+        $month = session('month');
+        $day = session('day');
+        $date = $year."-".$month."-".$day;
 
-        $user = User_detail::select($print)
-        ->join('payments','payments.user_id','=','user_details.user_id')
-        ->where('payment_date', '>=', $date)
-        ->where('payment_date', '<=', $date2)
-        ->where('payment_type', '!=', 'locker')
-        ->orderBy('payment_date', 'DESC')
-        ->get(); 
+       if ($year > 1999 && $month !=  'MM' && $day != 'DD'){$generate = true;}
+        if ($generate == true){
+            $user = User_detail::select($print)
+            ->join('payments','payments.user_id','=','user_details.user_id')
+            ->where('payment_date', '=', $date)
+            ->where('payment_type', '!=', 'locker')
+            ->orderBy('payment_date', 'DESC')
+            ->get(); 
 
-        $count = DB::table('user_details')
-        ->select(DB::raw("COUNT(payments.id) AS count"))
-        ->join('payments','payments.user_id','=','user_details.user_id')
-        ->where('payment_date', '>=', $date)
-        ->where('payment_date', '<=', $date2)
-        ->where('payment_type', '!=', 'locker')
-        ->orderBy('payment_date', 'DESC')
-        ->value('count');
+            $count = DB::table('user_details')
+            ->select(DB::raw("COUNT(payments.id) AS count"))
+            ->join('payments','payments.user_id','=','user_details.user_id')
+            ->where('payment_date', '=', $date)
+            ->where('payment_type', '!=', 'locker')
+            ->orderBy('payment_date', 'DESC')
+            ->value('count');
 
-        $total = DB::table('user_details')
-        ->select(DB::raw("SUM(amount) AS count"))
-        ->join('payments','payments.user_id','=','user_details.user_id')
-        ->where('payment_date', '>=', $date)
-        ->where('payment_date', '<=', $date2)
-        ->where('payment_type', '!=', 'locker')
-        ->orderBy('payment_date', 'DESC')
-        ->value('count');
+            $total = DB::table('user_details')
+            ->select(DB::raw("SUM(amount) AS count"))
+            ->join('payments','payments.user_id','=','user_details.user_id')
+            ->where('payment_date', '=', $date)
+            ->where('payment_type', '!=', 'locker')
+            ->orderBy('payment_date', 'DESC')
+            ->value('count');
 
-            return Excel::create('membership-payments-'.$date, function($excel) use ($user, $date, $date2, $count, $total){
-            $excel->sheet('membership-payments_today', function($sheet) use ($user, $date, $count, $date2, $total){
+            return Excel::create('membership-payments-'.$date, function($excel) use ($user, $date, $count, $total){
+            $excel->sheet('membership-payments_today', function($sheet) use ($user, $date, $count, $total){
                 $sheet  ->fromArray($user)
                         ->prependRow(1, array('Altitude Gym'))
-                        ->prependRow(2, array('Membership subscription payments from '.$date.' to '.$date2, 'No. of payments: '.$count, 'Total amount: PHP '.$total))
+                        ->prependRow(2, array('Membership subscription payments for '.$date, 'No. of payments: '.$count, 'Total amount: PHP '.$total))
                         ->setFontFamily("Courier")
                         ->cells('A1:F1', function($cells) {
                             $cells->setFontColor('#8000000');
@@ -332,5 +362,48 @@ class AdminExpiringLockerController extends Controller
                         });
             }); 
         })->download('xls');
+        }else{
+            $user = User_detail::select($print)
+            ->join('payments','payments.user_id','=','user_details.user_id')
+            ->where('payment_type', '!=', 'locker')
+            ->orderBy('payment_date', 'DESC')
+            ->get(); 
+
+            $count = DB::table('user_details')
+            ->select(DB::raw("COUNT(payments.id) AS count"))
+            ->join('payments','payments.user_id','=','user_details.user_id')
+            ->where('payment_type', '!=', 'locker')
+            ->orderBy('payment_date', 'DESC')
+            ->value('count');
+
+            $total = DB::table('user_details')
+            ->select(DB::raw("SUM(amount) AS count"))
+            ->join('payments','payments.user_id','=','user_details.user_id')
+            ->where('payment_type', '!=', 'locker')
+            ->orderBy('payment_date', 'DESC')
+            ->value('count');
+
+            return Excel::create('membership-payments-ALL-'.Carbon::parse(Carbon::now())->format('Y-m-d'), function($excel) use ($user, $count, $total){
+            $excel->sheet('membership-payments_sheet', function($sheet) use ($user, $count, $total){
+                $sheet  ->fromArray($user)
+                        ->prependRow(1, array('Altitude Gym'))
+                        ->prependRow(2, array('Membership payments for '.Carbon::parse(Carbon::now())->format('Y-m-d'), 'No. of payments:'.$count, 'Total amount: PHP '.$total))
+                        ->setFontFamily("Courier")
+                        ->cells('A1:F1', function($cells) {
+                            $cells->setFontColor('#8000000');
+                            $cells->setFontFamily('Impact');
+                            $cells->setFontSize('24');
+                        })
+                        ->cells('A2:F2', function($cells) {
+                            $cells->setFontColor('#8000000');
+                        })
+                        ->cells('A3:F3', function($cells) {
+                            $cells->setFontColor('#FF00000');
+                            $cells->setFontWeight('bold');
+                        });
+            }); 
+        })->download('xls');
+
+        }
     }
 }

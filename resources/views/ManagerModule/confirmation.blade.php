@@ -8,7 +8,7 @@
     <div class="col-xl-12 col-lg-12">
          @include('ManagerModule.inc.message')
 
-        
+        @include('ManagerModule.layouts.usersconfirm')
  <div class="card">
 
             <div class="card-header table-inverse">
@@ -25,6 +25,9 @@
 
              <div class="card-body">
                 <div class="card-block">
+                  <!-- confirm by username -->
+                         
+                <!-- confirm by username -->
 
                 <div class="dropdown">
         <span class="float-xs-left">
@@ -34,13 +37,14 @@
         
           <select onchange="this.form.submit()" type="text" name="sorting_confirm">
            <option value="" selected>Choose Filter: </option>
-                  <option value="ASC">Ascending</option>
-                  <option value="DESC">Descending</option>
+                  <option value="ASC">A - Z</option>
+                  <option value="DESC">Z - A</option>
                   </select>
                 </span>
                 </form>
         </span>
         </div>
+
 
 
         <form action="/search_for" method="GET">
@@ -54,11 +58,9 @@
 
  </div>                                   
                 </div>
-
-                @include('ManagerModule.layouts.usersconfirm')
             <div class="card-body">                
                 <div class="table-responsive">
-                    <table id="myTable" class="tablesorter table table-hover mb-0">
+                    <table class="table table-hover mb-0">
                         <thead style="background-color:#D3D3D3">
                             <tr>
                                 <th><i class="icon-user"></i>     Name</th>

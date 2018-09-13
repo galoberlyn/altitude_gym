@@ -56,8 +56,7 @@ class userController extends Controller {
         'emergency_contact' => 'required|max:255|string',
         'emergency_no' => 'required',
         'subscription' => 'required',
-        'date_subscription' => 'required',
-        'amount' => 'required',
+        'email_address' => 'required|email',
         'nickname' => 'required|max:255'
         ];
 
@@ -84,10 +83,10 @@ class userController extends Controller {
         $user_badge = new User_badge;
 
         $username = strtolower(str_replace(' ', '', $request -> input('first_name')).str_replace(' ', '', $request -> input('last_name')) .rand(1,999));
-        $password = strtolower(str_replace(' ', '', $request -> input('last_name')).str_replace(' ', '', $request -> input('middle_initial')).substr($request -> input('contact_no'), -3));
-        
+
         $user->username = $username;
-        $user->password = $password;
+        $user->password = bcrypt('123456');
+        $user->password_status = 'notset';
         $user->user_type = 'member';
         $user->id_number = $request-> input('id_number');
         $user->rfid_number = $request-> input('rfid_number');
@@ -174,6 +173,6 @@ class userController extends Controller {
         }
 
         
-        return redirect('/addMember')->with('success', 'User created! [Username:'.$username.']'.'     [Password:'.$password.']');
+        return redirect('/addMember')->with('success', 'User created! Username:'.$username);
     }
 }

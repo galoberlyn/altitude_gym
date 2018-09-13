@@ -222,6 +222,7 @@
                                               <div class="col-md-6">
                                                   <div class="ui-select">
                 <select id="user_time_zone" class="form-control" name="profile_status">
+                  <option value="{{$user_details->profile_status}}">My profile Status: {{$user_details->profile_status}} </option>
                   <option value="Public">Public Profile</option>
                   <option value="Private">Private Profile</option>
                 </select>

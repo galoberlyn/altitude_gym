@@ -203,9 +203,6 @@ Route::group(['middleware' => 'App\Http\Middleware\ManagerMiddleware'], function
 	Route::post('/declined', "confirmationController@decline")->middleware('auth');
 	Route::get('/search_for', "confirmationController@searchConfirm")->middleware('auth');
 	Route::get('/sorting_confirm', "confirmationController@sorting_confirm")->middleware('auth');
-	Route::post('/accept_conf_name', 'confirmationController@accept_conf_name')->middleware('auth');
-	Route::post('/accept_conf_date', 'confirmationController@accept_conf_date')->middleware('auth');
-
 
 	//Notification
 	Route::resource('/managerNotification', 'notificationController');
@@ -278,6 +275,9 @@ Route::group(['middleware' => 'App\Http\Middleware\ManagerMiddleware'], function
 
 	Route::post('/changer_m', 'ChangePasswordController@changer')->middleware('auth');
 
+	Route::post('/accept_conf_name', 'confirmationController@accept_conf_name')->middleware('auth');
+	Route::post('/accept_conf_date', 'confirmationController@accept_conf_date')->middleware('auth');
+
 	// END MANAGER'S ROUTES
 
 });
@@ -339,7 +339,6 @@ Route::group(['middleware' => 'App\Http\Middleware\AdminMiddleware'], function()
 	Route::get('/reports/5', "AdminExpiringLockerController@prepareLockerExport")->middleware('auth');
 	Route::get('/reports/6', "AdminExpiringLockerController@prepareLockerPaymentExport")->middleware('auth');
 	Route::get('/reports/7', "AdminExpiringLockerController@prepareMemPaymentExport")->middleware('auth');
-	Route::get('/members/{id}/change_pw', "AdminMemberController@changePW")->middleware('auth');
 	Route::get('log-export', 'AdminUserLogController@logExport')->name('log-export')->middleware('auth');
 	Route::get('user-export', 'AdminMemberController@memberExport')->name('user-export')->middleware('auth');
 	Route::get('payments-export', 'AdminExpirationsController@paymentsExport')->name('payments-export')->middleware('auth');

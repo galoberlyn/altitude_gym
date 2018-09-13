@@ -101,8 +101,6 @@ class memberListController extends Controller {
         ->orWhere('subscription', 'like', $searchBtn .'%')
         ->where('user_type', '=', 'member')
         ->orWhere('user_record.status', 'like', $searchBtn .'%')
-        ->where('user_type', '=', 'member')
-        ->orWhere('user.username', 'like', $searchBtn .'%')
         ->orderBy('user_details.first_name')
         ->paginate(15);
 

@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="en" data-textdirection="ltr" class="loading">
     @include('member.layouts.head')
+       <link rel="stylesheet" type="text/css" href="custom_css/leaderboard_member.css">
+
     <title>Leaderboard</title>
     
   <body data-open="click" data-menu="vertical-menu" data-col="2-columns" class="vertical-layout vertical-menu 2-columns  fixed-navbar">
@@ -21,21 +23,24 @@
 
 
 
+     @include('member.layouts.notification')
   <div class="row">
     <div class="col-xs-8">
-     @include('member.layouts.notification')
+
      <div class="card">
      <div class="card-header">
           
-						<h2 class="card-title">Top Earners</h2>
+						<h2 class="card-title">Gym Leaders</h2>
 						<div class="heading-elements">
                   <form action="/leaderboard" method="POST">
                   {{ csrf_field() }}  
                   <select name="category" onchange="this.form.submit()" class="form-control"> 
-                    <option value="" selected disabled hidden>Choose filter here</option> 
-                    <option value="beginner"> Beginner </option>
-                    <option value="intermediate"> Intermediate </option>
-                    <option value="expert"> Expert </option>
+                    <option value="" selected disabled hidden>Choose leaderboard filters</option> 
+                    <option value="beginner"> All Time Beginner </option>
+                    <option value="intermediate"> All Time Intermediate </option>
+                    <option value="expert"> All time Advanced </option>
+                    <option value="badges"> Most Earned Badges </option>
+                    <option value="exp"> Most Earned Experience Points </option>
                   </select>
                   </form>
 
@@ -46,33 +51,40 @@
 				<div class="card-body">
 					
 					<ul class="list-group list-group-flush">
-            <?php $ctr=1; ?>
-
-            @if(count($leaders) > 0)
+           
+        
       
           
-                @foreach($leaders as $leader)
+                
 
-
+          @foreach($all_time_index as $key => $all)
 						<li class="list-group-item">
 							<div class="media">
                         <div class="media-body red text-xs-left">
-                            <h3 class="red">{{$ctr.". ".$leader->name}} <a style="font-size: 13px" href="viewprofile/{{$leader->id}}"> View Profile </a></h3>
-                            <span>600pts</span>
-                            <progress class="progress progress-danger" value="100" max="100" aria-describedby="example-caption-2" style="width: 100%"></progress>
+                  
+                     
+                            <h3 class="red">@if($key == 0) <i class="icon-fire3 font-large"></i> @endif {{$key+1}} {{$all ->Name." " }}   <span class="h6"><a class="warning" href="/viewprofile/{{$all->id}}"> View Badges </a></span> </h3> 
+                            <span> Level: {{$all->level}}, {{$all->total_exp}}pts total</span><br>
+                            
+
+               
+                            
+                            
                         </div>
                         <div class="media-right media-middle">
                       <!--       <i class="icon-smile font-large-3 float-xs-right"></i> -->
-                            <img src="/uploads/avatars/{{ $leader->avatar }}" height="70px" width="70px">
+                            <img src="/uploads/avatars/{{$all->avatar}}" height="70px" width="70px">
                         </div>
                        
+
                     </div>
-            <?php $ctr++; ?>
+         
 						</li>
-                @endforeach
-             @else
-              <h1 class="teal">{{" No available users "}}</h1>
-            @endif
+            @endforeach
+
+       
+           <!--    <h1 class="teal text-xs-center">{{" No users made it to the leaderboards "}}</h1> -->
+       
 					</ul>
 
 				</div>
@@ -84,7 +96,6 @@
     <div class="card" >
        <div class="card-header">
         @foreach($myown as $own)
-        @endforeach
            <h3 class="orange">My Stats</h3>
            <br>
            <h4 class="teal">{{$own->exp}} Total Points</h4>
@@ -102,14 +113,15 @@
           </div>
           
               <ul class="list-group list-group-flush">
-            <li class="list-group-item"> <h4>Total Points: {{$own->exp}}</h4> </li> 
+            <li class="list-group-item"> <h4>My Level: {{$own->level}}</h4> </li> 
             
-            <li class="list-group-item">Profile Privacy: {{$own->profile_status}}</li>
+            <li class="list-group-item h4">My Experience Points: {{$own->exp}}</li>
           </ul>    
         </div>
           <div class="card-block text-xs-center">
             <a href="/editprofile" class="btn btn-primary card-link">Edit Profile</a>
             <!-- <a href="#" class="card-link">Another link</a> -->
+        @endforeach
     </div>
 </div>
 </div>

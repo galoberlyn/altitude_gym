@@ -2,6 +2,8 @@
 <html lang="en" data-textdirection="ltr" class="loading">
     @include('member.layouts.head')
     <title>My Goals</title>
+       <link rel="stylesheet" type="text/css" href="custom_css/goals.css">
+       <link rel="stylesheet" type="text/css" href="../../css/app.css">
     
   <body data-open="click" data-menu="vertical-menu" data-col="2-columns" class="vertical-layout vertical-menu 2-columns  fixed-navbar">
 
@@ -17,22 +19,32 @@
   <div class="col-xl-12 col-lg-12">
     @include('member.layouts.notification')
 
-  <div class="row">
-      
-  <div class="col-md-9">
-  <div style="font-size: 3em; text-align: center;"> My Goals <i class=" red  icon-ribbon-a"></i>
+ <div class="row match-height">         
+    <div class="col-md-3">
+      <a data-toggle="modal" data-target="#goalz"> 
+      <div class="card text-xs-center">
+      <i class="teal icon-clipboard2" style="font-size: 40px;"></i><br>
+      <span class="teal" style="font-size: 20px;">View Finished Goals</span>
+      </div>
+      </a>
+  </div>   
+
+  <div class="col-md-6">
+  <div class="card" style="text-align: center;">
+      <h1 class="orange" style="font-size:4em;">My Goals <i class="icon-android-checkmark-circle"></i></h1>
+      </div>
   </div>
-  </div>
-   
-   <div class="col-md-3">
-      <div style="text-align: center;">
+  
+  <div class="col-md-3">
       <a data-toggle="modal" data-target="#addGoalModal"> 
+      <div class="card text-xs-center">
       <i class="green icon-android-add-circle" style="font-size: 40px;"></i><br>
       <span class="green" style="font-size: 20px;">Add Goal </span>
+      </div>
       </a>
-      
-      
-      
+  </div>
+  
+  </div>
 <!-- Modal -->
 									<div class="modal fade text-xs-left" id="addGoalModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel33" aria-hidden="true">
 										<div class="modal-dialog" role="document">
@@ -41,7 +53,7 @@
 													<button type="button" class="close" data-dismiss="modal" aria-label="Close">
 													  <span aria-hidden="true">&times;</span>
 													</button>
-													<label class="modal-title text-text-bold-600" id="myModalLabel33" style="font-size: 20px;"> Add Goal Get Ready to Demolish these goals!<i class="green icon-ribbon-a"></i></label>
+													<label class="modal-title text-text-bold-600" id="myModalLabel33" style="font-size: 20px;"> Add Goal<i class="green icon-ribbon-a"></i></label>
 												</div>
 
 												<form action="/mygoals" method="POST">
@@ -63,18 +75,67 @@
 												  </div>
 												  <div class="modal-footer">
 													<input type="reset" class="btn btn-outline-secondary btn-lg" data-dismiss="modal" value="Close">
-													<input name="form_create" type="submit" class="btn btn-outline-primary btn-lg" value="Save">
+													<input name="form_create" type="submit" class="btn btn-outline-success btn-lg" value="Save">
 												  </div>
 												</form>
 											</div>
 										</div>
 									</div>
+  <!-- END MODAL -->
+
+ <!-- Modal -->
+                  <div class="modal fade text-xs-left" id="goalz" tabindex="-1" role="dialog" aria-labelledby="myModalLabel33" aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                      <div class="modal-content">
+                        <div class="modal-header">
+                          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                          </button>
+                          <label class="modal-title text-text-bold-600" id="myModalLabel33" style="font-size: 20px;">My finished Goals<i class="green icon-ribbon-a"></i></label>
+                        </div>
+
+          
+                            <div class="modal-body">
+                            
+                            @if(count($done_goals) === 0 )
+
+                       <h1 class="text-xs-center"> No Goals Finished :( </h1>
+
+                       @else
+
+                       <div class="row">
+                       @foreach($done_goals as $goalz)
+                        <div class="col-xs-6">
+                        <div class="card bg-lime">
+                          <div class="card-body">
+                            <div class="card-block text-xs-center">
+                              <h2 class="card-title">{{$goalz->title}}</h2>
+                              
+                              <h6> {{$goalz->description}} </h6>
+                            </div>
+                          </div>
+                        </div>
+                        </div>
+                    
+
+                       @endforeach
+                      </div>
+
+                       @endif             
+                                                  
+
+                          </div>
+                          <div class="modal-footer">
+                          <input type="reset" class="btn btn-outline-secondary btn-lg" data-dismiss="modal" value="Close">
+                          
+                          </div>
+                        </form>
+                      </div>
+                    </div>
+                  </div>
+  <!-- END MODAL -->
       
-  </div>
-   </div>
-   
-   
-    </div>
+
     @if ($errors->any())
     <div class="alert alert-danger">
         <ul>
@@ -87,75 +148,47 @@
     <br>
     <div class="row">
     <div class="col-xs-12">
-  
-  <div class="row">
-     
-     @foreach($ongoing_goals as $goals)
-     <div class="col-md-3">
-     <div class="card-group">
-        <div class="card">
-         <div class="card-header">
-	                <h4 class="card-title">{{ $goals->title }}</h4>
-	                <a class="heading-elements-toggle"><i class="icon-ellipsis font-medium-3"></i></a>
-        <div class="heading-elements">
-	                    <ul class="list-inline mb-0">
-	                        <li><a data-action="close"><i class="icon-cross2"></i></a></li>
-	                    </ul>
-	                </div>
-	            </div>
-         
-          <div class="card-body collapse in">
-              <div class="card-block">
-                  <div class="container">
-                      <div class="media-body cyan text-xs-left">
-                        <h5>{{ $goals->date }}</h5>
-                        <h5 class="green">{{$goals->description}}</h5>
+      <!-- goals -->
+@if(count($ongoing_goals) === 0) 
+<h1 class="lime text-xs-center"> You have no goals, create now! </h1>
+@else
+<form method="POST" action='/goals'>
+  {{csrf_field()}}
+@foreach($ongoing_goals as $goals)
+<div class="container">
+      <div class="col-sm-12">
+        <div class="bs-calltoaction bs-calltoaction-success bg-green bg-darken-1">
+                    <div class="row">
+                        <div class="col-md-9 cta-contents">
+                            <h1 class="cta-title">{{$goals->title}}</h1>
+                            <div class="cta-desc">
+                                <p>{{$goals->description}}</p>
+                                <p>{{$goals->date}}</p>
+                            </div>
                         </div>
-                        <br>
-                        <form action="/mygoals" method="POST" class="form-actions center">
-                          {{csrf_field()}}
-                        <input name="goal_identifier" type='text' hidden value="{{$goals->id}}"> 
-                        <button name="form_done" type="submit" class="btn btn-success"> Done </button>
-                        </form>
-                  </div>
-              </div>
-          </div>   
-      </div>    
-        </div> 
-     </div>
-     @endforeach
-      
+                        <div class="col-md-3 cta-button">
+                            <button type="submit" name="done_goal" value="{{$goals->id}}" class="btn btn-lg btn-block btn-success bg-green bg-lighten-1">Done</a>
+                        </div>
+                        <div class="col-md-3 cta-button">
+                            <button type='submit' name="remove_goal" value="{{$goals->id}}" class="btn btn-lg btn-block btn-success bg-red bg-lighten-1">Remove</a>
+                        </div>
+                     </div>
+                </div>
+        </div>
   </div>
-  
-  <hr>
-  <div class="row">
-  <div class="card">
-				<div class="card-body">
-					<div class="card-block">
-						<h2 class="card-title text-xs-center">Finished Goals <i class=" green  icon-check"></i></h2>
-					</div>
-  @if(count($done_goals) > 0)
-					<ul class="list-group list-group-flush">
-					@foreach($done_goals as $done)
-						<li class="list-group-item">
-							{{ $done->title. ", ". $done->description. " Finished goal at ". $done->date}} 
-						</li>
-				    @endforeach
-					</ul>
-					@else
-      <div class="row text-xs-center">
-       <h1 class="teal">{{" No goals have been accomplished yet "}}<i class="icon-sad-outline"></i></h1>
-       <br>
-      </div>
-       @endif
-				</div>
-			</div>
-  </div>
-      
+@endforeach
+</form>
+<div class="text-xs-center">
+  {{$ongoing_goals->links()}}
+</div>
+@endif  
+    <!-- end goals -->
+
+
         
         
-          </div>
-      </div>
+    </div>
+    </div>
 
 
     
@@ -198,4 +231,5 @@
     <script src="../../app-assets/js/scripts/pages/dashboard-lite.js" type="text/javascript"></script>
     <!-- END PAGE LEVEL JS-->
   </body>
+
 </html>

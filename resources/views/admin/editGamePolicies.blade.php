@@ -32,21 +32,15 @@
                  <fieldset>
                            <h4 class="form-section"><i class="icon-profile"></i>Details</h4>
 
-                <div class="form-group">
-                {{Form::label('', '* = required')}}
-                <div class="form-control-position">
-                        <i class="icon-credit-card2 warning"></i>
-                      </div>
-                  </div>
-                <div class="form-group">
-								{{Form::label('category', 'Category *')}}
+                             <div class="form-group">
+								{{Form::label('category', 'Category')}}
 								<div class="position-relative has-icon-left">
 								{{Form::select('category', array('Gamification' => 'Gamification'), $policy->category, ['class' => 'round border-warning'])}}
 								</div>
 							</div>
 							
 							<div class="form-group">
-								{{Form::label('type', 'Type *')}}
+								{{Form::label('type', 'Type')}}
 								<div class="position-relative has-icon-left">
 										{{Form::select('type', array('Point' => 'Points', 'Leveling' => 'Leveling',  'Badges' => 'Badges'),$policy->type, ['class' => 'form-control round border-success'])}}
 										<div class="form-control-position">
@@ -56,7 +50,7 @@
                              </div>
 							 
 							 <div class="form-group">
-								 {{Form::label('policy_description', 'Policy description *')}}
+								 {{Form::label('policy_description', 'Policy description')}}
 								<div class="position-relative has-icon-left">
 										{{Form::text ('policy_description', $policy->policy_description, ['class' => 'form-control round border-warning', 'placeholder' => 'Policy description'])}}
 										<div class="form-control-position">

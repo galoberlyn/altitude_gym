@@ -67,11 +67,7 @@
                     <img src="../../uploads/avatars/{{ strtolower($notifstat -> avatar) }}" alt="{{$notifstat -> avatar}}"></img>
                   </span> {{$notifstat -> first_name}} {{$notifstat -> last_name}}   ({{$notifstat -> user_type}})</td>
                   <td>{{$notifstat -> message}}</td>
-                  @if($notifstat -> notification_type == 'confirmation')
-                  <td> {{$notifstat -> notification_type}} <br><button onclick="window.location.href='/confirmation'" class="btn grey btn-outline-secondary"> View</button></td>
-                  @else
-                   <td> {{$notifstat -> notification_type}}</td>
-                  @endif
+                  <td> {{$notifstat -> notification_type}}</td>
                   <td> {{$notifstat -> created_at}}</td>
                 </tr>
                 @endforeach                  

@@ -16,15 +16,17 @@
         </div>
         <div class="content-body"><!-- stats -->
 <div class="row">
+  
   <div class="col-xl-12 col-lg-12">
     <div class="row">
     <div class="col-xs-12">
       @include('member.layouts.notification')
       <!-- SUCCESS PAG NAG WORKOUT NA SYA -->
-        @if (session('success'))
+    @if (session('success'))
+
         <div class="container">
         <div class="row">
-            <div class="col-sm-6 col-md-6">
+            <div class="col-sm-12 col-md-12">
                 <div class="alert alert-success">
                     <button type="button" class="close" data-dismiss="alert" aria-hidden="true">
                         ×</button>
@@ -36,36 +38,86 @@
             </div>
             </div>
           </div>
-    @endif
-  <div class="row">
-    <div class="col-xs-12">
-      <div class="card-group">
+    @elseif(session('earned'))
 
-        <div class="card card-outline-danger text-center">
-    
+      @include('member.layouts.earned')
+
+    @endif
+
+    @if(session('not_rendered'))
+
+      @include('member.layouts.no_points')
+      
+    @endif
+
+    @if (session('finished'))
+   
+      @include('member.layouts.finished')
+      
+    @endif
+
+    @if(session('wala'))
+
+      @include('member.layouts.wala')
+
+    @endif
+<div class="row">
+  <div class="col-sm-6">
+    <div class="card-group">
+        <div class="card">
+          
                 <div class="card-block">
                     <div class="media">
                         <div class="media-body cyan text-xs-left">
-                        <i class="icon-happy teal font-large-3 float-xs-right"></i>
-                            <h3 class="teal">Maybe you need to look for the programs list first before deciding what to play! :)</h3><br>
-                            <span class="col-xs-13"><a href="/programs" class="btn btn-info">View All Workouts</a></span>
+                        <i class="icon-happy orange font-large-3 float-xs-right"></i>
+                            <h3 class="teal">Maybe you need to look for the programs list first before deciding what to play!</h3><br><br>
+                            <span class="col-xs-13"><a href="/programs_mem" class="btn btn-info">View All Workouts</a></span>
                         </div>
                         
                     </div>
                 </div>      
         </div>
   </div>
+</div>
+@foreach($user_lvl as $lvl)
+@endforeach
+ <div class="col-sm-6">
+      <div class="card-group">
+          <div class="card">
+                  <div class="card-block">                                   
+                      <div class="media">
+  <h3 class="teal"> See the Badges for more information </h3> <br><br>
+ <h1 class="text-xs-center"><a class="lime" href="/gamified"> Badges <i class="icon-star-half"></i></a></h1> <br><br>
+                        
+                      </div>
+                  </div>
+          </div>
+      </div>
+    </div>
+
+</div>
+
+  <div class="row">
+    <div class="col-sm-12">
+
     @if(count($check_program) != 0 )
     @include("member.workout_checklist")
   @else
     
-  <h1 class="text-xs-center"> Choose Type of Workout </h1><br>
+ <br>
   <!-- image 1 -->
-  <div class="col-md-6">
+  <div class="col-md-12">
     <div>
-        <a class="button" data-toggle="modal" data-target="#createdProgs">
-        <img class="work w3-round-medium img-responsive" src="custom_image/workout1.jpg" alt="">
-        </a>
+           <a data-toggle="modal" data-target="#createdProgs">
+          <div class="card bg-info">
+                  <div class="card-block">                                   
+                      <div class="media text-xs-center">
+                         <h1 class="white"> Choose a Program </h1>
+                      </div>
+                  </div>
+          </div>
+           </a> 
+
     </div>
   </div>
   
@@ -81,12 +133,14 @@
           <h4 class="modal-title">Choose the category</h4>
         </div>
         <div class="modal-body">
-         <div class=" text-center">
+         <div class="text-center">
 
-          <button data-toggle="modal" data-target="#beginner" value="beginner" class="btn btn-info btn-block"> Beginner </button>
+          <button data-toggle="modal" data-target="#beginner" value="beginner" class="btn btn-info btn-block"> Beginner Program </button>
           <br>
 
-            <button data-toggle="modal" data-target="#intermediate" value="intermediate" class="btn btn-danger btn-block"> Intermediate </button>
+            <button data-toggle="modal" data-target="#intermediate" value="intermediate" class="btn btn-danger btn-block"> Intermediate Program</button>
+          <br>
+          <button data-toggle="modal" data-target="#custom" value="cutom" class="btn btn-warning btn-block"> Custom Program</button>
          
          </div>
         </div>
@@ -101,15 +155,15 @@
     </div>
   </div>
   
-  <!-- image 2 -->
-<div class="col-md-6">
+  <!-- customize own workout -->
+<!-- <div class="col-md-6">
     <div>
-        <a class="button" data-toggle="modal" data-target="#myModalFullscreen2">
-        <img class="work w3-round-medium img-responsive" src="custom_image/workout2.jpg" alt="">
+        <a class="button" data-toggle="modal" data-target="#customize">
+        <img class="mx-auto d-block img-fluid work w3-round-medium img-responsive" src="custom_image/workout2.jpg" alt="">
         </a>
     </div>
   </div>
-   
+ -->   
 
     <!-- MODAL FOR BEGINNER -->
       <!-- Eto yung section ng customize own form dapat to -->
@@ -178,11 +232,68 @@
     </div>
     <!-- /.modal -->
 
+<!-- MODAL FOR Custom type program -->
+    <div class="modal fade   footer-to-bottom" id="custom" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true"><i class="icon-cross"></i></button>
+                      <h2 class="modal-title text-xs-center">Choose Your Custom Program!</h2>
+
+                </div>
+                <div class="modal-body">
+                  <!-- big tabs nalang -->
+                        
+                <div class="">
+                 @include('member.layouts.custom_workout')
+                    </div>
+               
+                    <!-- end -->
+                </div>
+                <div class="modal-footer">
+   
+                </div>
+            </div>
+            <!-- /.modal-content -->
+        </div>
+        <!-- /.modal-dialog -->
+    </div>
+
 
 
         </div>
       </div>
     </div>
+
+   @include("member.layouts.custom_workout2")
+
+   <!-- MODAL FOR Customize program -->
+    <div class="modal fade   footer-to-bottom" id="customize" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true"><i class="icon-cross"></i></button>
+                      <h2 class="modal-title text-xs-center">Create Your Own Program</h2>
+
+                </div>
+                <div class="modal-body">
+                  <!-- big tabs nalang -->
+                        
+                <div class="">
+                 @include('member.layouts.customize')
+                    </div>
+               
+                    <!-- end -->
+                </div>
+                <div class="modal-footer">
+   
+                </div>
+            </div>
+            <!-- /.modal-content -->
+        </div>
+        <!-- /.modal-dialog -->
+    </div>
+
 @endif
     <!-- ////////////////////////////////////////////////////////////////////////////-->
     <!-- BEGIN VENDOR JS-->
@@ -235,86 +346,63 @@
       $(":checkbox").click(countChecked);
         
    }
-   //end script for progress bar
+   //end script for progress bar /workout_checklist
 
    // script for marking boxes
-      function markAll(){
+      function markAll(day_value){
 
-          var day1 = document.getElementsByClassName("day1");
+          var day = document.getElementsByClassName("day"+day_value);
 
-          if(day1[0].checked==true){
-            for(var i=0; i<day1.length; i++){
-              day1[i].checked = false;
+          if(day[0].checked==true){
+            for(var i=0; i<day.length; i++){
+              day[i].checked = false;
             }
           }else{
-            for(var i=0; i<day1.length; i++){
-              day1[i].checked = true;
-            }
-          }
-      }
-
-      function markAll2(){
-
-          var day2 = document.getElementsByClassName("day2");
-
-          if(day2[0].checked==true){
-            for(var i=0; i<day2.length; i++){
-              day1[i].checked = false;
-            }
-          }else{
-            for(var i=0; i<day2.length; i++){
-              day2[i].checked = true;
-            }
-          }
-      }
-
-      function markAll3(){
-
-          var day3 = document.getElementsByClassName("day3");
-
-          if(day3[0].checked==true){
-            for(var i=0; i<day3.length; i++){
-              day3[i].checked = false;
-            }
-          }else{
-            for(var i=0; i<day3.length; i++){
-              day3[i].checked = true;
-            }
-          }
-      }
-
-      function markAll4(){
-
-          var day4 = document.getElementsByClassName("day4");
-
-          if(day4[0].checked==true){
-            for(var i=0; i<day4.length; i++){
-              day4[i].checked = false;
-            }
-          }else{
-            for(var i=0; i<day4.length; i++){
-              day4[i].checked = true;
-            }
-          }
-      }
-
-      function markAll5(){
-
-          var day5 = document.getElementsByClassName("day5");
-
-          if(day5[0].checked==true){
-            for(var i=0; i<day5.length; i++){
-              day5[i].checked = false;
-            }
-          }else{
-            for(var i=0; i<day5.length; i++){
-              day5[i].checked = true;
+            for(var i=0; i<day.length; i++){
+              day[i].checked = true;
             }
           }
       }
 
 
     </script> 
-    
+
+ <script>
+ $('#exp_modal').modal({
+        show: true
+    });
+  $('#level_modal').modal({
+        show: true
+    });
+  $('#confirm_modal').modal({
+        show: true
+    });
+
+   $('#wala').modal({
+        show: true
+    });
+  </script>    
+
+<script>
+  var x = document.getElementsByClassName('check_custom');
+  var y = document.getElementsByClassName('check_custom1');
+  var z = document.getElementsByClassName('check_custom2');
+  
+function twin(){
+
+  for(var i=0; i<=x.length; i++){
+
+    if(x[i].checked){
+      y[i].checked = true;
+      z[i].checked = true;
+    }else{
+      y[i].checked = false;
+      z[i].checked = false;
+    }
+
+  }
+ 
+}
+</script>
   </body>
 </html>

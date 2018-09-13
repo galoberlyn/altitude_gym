@@ -163,6 +163,7 @@ class AdminMemberController extends Controller
     ->leftJoin('user_record', 'user_record.id', '=', 'user_details.user_id')
     ->leftJoin('locker','user_details.user_id','=','locker.user_id')
 	->where('first_name','=',$searchBtn)
+    ->orWhere('last_name','=',$searchBtn)
     ->orWhere('locker_number','=',$searchBtn)
     ->orWhere('subscription','=',$searchBtn)
     ->orderBy('user_details.first_name', $sortBtn)
@@ -255,6 +256,7 @@ class AdminMemberController extends Controller
     public function store(Request $request)
     {
 		date_default_timezone_set('Asia/Manila');
+		
         if ($request-> input('user_type') == 'member'){
            $this->validate($request, [
 				'id_number' => 'required|unique:user',
@@ -302,7 +304,8 @@ class AdminMemberController extends Controller
 
             $username = strtolower(str_replace(' ', '', $request -> input('first_name')).str_replace(' ', '', $request -> input('last_name')) .rand(1,999));
             $user->username = $username;
-            $user->password = bcrypt(strtolower(trim($request->input('last_name')).trim($request->input('middle_initial')).trim(substr($request->input('contact_no'), -3))));
+            $user->password = bcrypt('123456');
+            $user->password_status = 'notset';
             $user->user_type = $request-> input('user_type');
             $user->id_number = $request-> input('id_number');
             $user->rfid_number = $request-> input('rfid_number');
@@ -420,7 +423,7 @@ class AdminMemberController extends Controller
 
             $username = strtolower(str_replace(' ', '', $request -> input('first_name')).str_replace(' ', '', $request -> input('last_name')) .rand(1,999));
             $user->username = $username;
-            $user->password = bcrypt(strtolower(trim($request->input('last_name')).trim($request->input('middle_initial')).trim(substr($request->input('contact_no'), -3))));;
+            $user->password = bcrypt('123456');
             $user->user_type = $request-> input('user_type');
             $user->id_number = $request-> input('id_number');
             $user->rfid_number = $request-> input('rfid_number');
@@ -471,7 +474,7 @@ class AdminMemberController extends Controller
             $user_detail->save();       
             $user_badge->save();
         }
-        return redirect('members')->with('success', 'User '.$request -> input('first_name').' '.$request -> input('last_name').' created! (username: '.$username.', password:'.strtolower(trim($request->input('last_name')).trim($request->input('middle_initial')).trim(substr($request->input('contact_no'), -3))).')');
+        return redirect('members')->with('success', 'User '.$request -> input('first_name').' '.$request -> input('last_name').' created! (username: '.$username.')');
     }
 
     /**
@@ -550,8 +553,8 @@ public function show($id)
      */
     public function update(Request $request, $id)
     {
-        date_default_timezone_set('Asia/Manila');
-        
+		date_default_timezone_set('Asia/Manila');
+		
         $this->validate($request, [
             'first_name' => 'required|max:30',
             'last_name' => 'required|max:20',
@@ -594,18 +597,6 @@ public function show($id)
         return redirect('members')->with('success', 'User updated!');
         //return 'i got loyalty got royalty inside my dna';
     }
-
-    public function changePW(Request $request, $id)
-    {
-        date_default_timezone_set('Asia/Manila');
-        // $xs = DB::select("SELECT (user_id+1) AS user_id FROM `user_details` ORDER BY 1 DESC LIMIT 1")->value('user_id');
-        $user = User::where('id', '=', $id)->first();
-        $user_detail = User_detail::where('user_id', '=', $id)->first();
-        $user->password = bcrypt(strtolower(trim($user_detail->last_name).trim($user_detail->middle_initial).trim(substr($user_detail->contact_no, -3))));
-        $user->save();
-        return redirect('members')->with('success', 'User password reset to '.strtolower(trim($user_detail->last_name).trim($user_detail->middle_initial).trim(substr($user_detail->contact_no, -3))));
-        //return 'i got loyalty got royalty inside my dna';
-    }
 	
 	
 
@@ -640,9 +631,10 @@ public function show($id)
         $print_17 = Input::has('17-selected') ? true : false;
         $print_18 = Input::has('18-selected') ? true : false;
         $print_19 = Input::has('19-selected') ? true : false;
-        $d = $request-> input('date');
-        $d2 = $request-> input('date2');
-        return redirect()->route('user-export')->with('print_1', $print_1)->with('print_2', $print_2)->with('print_3', $print_3)->with('print_4', $print_4)->with('print_5', $print_5)->with('print_6', $print_6)->with('print_7', $print_7)->with('print_8', $print_8)->with('print_9', $print_9)->with('print_10', $print_10)->with('print_11', $print_11)->with('print_12', $print_12)->with('print_13', $print_13)->with('print_14', $print_14)->with('print_15', $print_15)->with('print_16', $print_16)->with('print_17', $print_17)->with('print_18', $print_18)->with('print_19', $print_19)->with('d', $d)->with('d2', $d2);
+        $year = Input::get('year');
+        $month = Input::get('month');
+        $day = Input::get('day');
+        return redirect()->route('user-export')->with('print_1', $print_1)->with('print_2', $print_2)->with('print_3', $print_3)->with('print_4', $print_4)->with('print_5', $print_5)->with('print_6', $print_6)->with('print_7', $print_7)->with('print_8', $print_8)->with('print_9', $print_9)->with('print_10', $print_10)->with('print_11', $print_11)->with('print_12', $print_12)->with('print_13', $print_13)->with('print_14', $print_14)->with('print_15', $print_15)->with('print_16', $print_16)->with('print_17', $print_17)->with('print_18', $print_18)->with('print_19', $print_19)->with('year', $year)->with('month', $month)->with('day', $day);
     }
 
     public function postForm(Request $request)
@@ -802,48 +794,30 @@ public function addlock()
         if (session('print_17')){array_push($print, "user_details.emergency_contact AS Emergency Contact");}
         if (session('print_18')){array_push($print, "user_details.emergency_no AS Emergency Contact's Number");}
         if (session('print_19')){array_push($print, "user_details.profile_status AS Profile Status");}
-        $date = session('d');
-        $date2 = session('d2');
+        $year = session('year');
+        $month = session('month');
+        $day = session('day');
+        $date = $year."-".$month."-".$day;
 
-        if ($date2 < $date && $date2 != ''){
-            return redirect ('reports')->with('error', 'The second date cannot be later than the first date!');
-        }
-        if ($date == ''){
-            $date = date('1999-01-01 00:00:00');
-        }
-        if ($date2 == ''){
-            $date2 = date('2999-12-31 00:00:00');
-        }
+        if ($year > 1999 && $month !=  'MM' && $day != 'DD'){$generate = true;}
+        if ($generate == true){
+            $count = DB::table('user_details')
+            ->select(DB::raw("COUNT(user.id) AS count"))
+            ->join('user','user.id','=','user_details.user_id')
+            ->whereRaw("user_type = 'member' AND user.created_at LIKE '".$date."%'")
+            ->orderBy('user_details.user_id', 'DESC')
+            ->value('count');
 
-        $count = DB::table('user_details')
-        ->select(DB::raw("COUNT(user.id) AS count"))
-        ->join('user','user.id','=','user_details.user_id')
-        ->whereRaw("user_type = 'member'")
-        ->where("user.created_at", '>=', $date)
-        ->where("user.created_at", '<=', $date2)
-        ->orderBy('user_details.user_id', 'DESC')
-        ->value('count');
-
-        $user = User_detail::select($print)
-        ->join('user','user.id','=','user_details.user_id')
-        ->whereRaw("user_type = 'member'")
-        ->where("user.created_at", '>=', $date)
-        ->where("user.created_at", '<=', $date2)
-        ->orderBy('user_details.user_id', 'DESC')
-        ->get(); 
-
-        if ($date == '1999-01-01 00:00:00'){
-            $date = 'FIRST';
-        }
-        if ($date2 == '2999-12-31 00:00:00'){
-            $date2 = 'LAST';
-        }
-
-        return Excel::create('members-'.$date.'-'.$date2, function($excel) use ($user, $date, $date2, $count){
-            $excel->sheet('members_sheet', function($sheet) use ($user, $date, $date2, $count){
+            $user = User_detail::select($print)
+            ->join('user','user.id','=','user_details.user_id')
+            ->whereRaw("user_type = 'member' AND user.created_at LIKE '".$date."%'")
+            ->orderBy('user_details.user_id', 'DESC')
+            ->get(); 
+            return Excel::create('members-'.$date, function($excel) use ($user, $date, $count){
+            $excel->sheet('members_sheet', function($sheet) use ($user, $date, $count){
                 $sheet  ->fromArray($user)
                         ->prependRow(1, array('Altitude Gym'))
-                        ->prependRow(2, array('Members registered from '.$date.' to '.$date2, 'Member count: '.$count))
+                        ->prependRow(2, array('Members registered on '.$date, 'Member count: '.$count))
                         ->setFontFamily("Courier")
                         ->cells('A1:S1', function($cells) {
                             $cells->setFontColor('#8000000');
@@ -859,5 +833,46 @@ public function addlock()
                         });
             }); 
         })->download('xls');
+        }else{
+            $user = User_detail::select($print)
+            ->join('user','user.id','=','user_details.user_id')
+            ->where('user_type','=','member')
+            ->orderBy('user_details.user_id', 'DESC')
+            ->get(); 
+
+            $count = DB::table('user_details')
+            ->select(DB::raw("COUNT(user.id) AS count"))
+            ->join('user','user.id','=','user_details.user_id')
+            ->where('user_type','=','member')
+            ->orderBy('user_details.user_id', 'DESC')
+            ->value('count');
+
+
+            return Excel::create('members-ALL-'.Carbon::parse(Carbon::now())->format('Y-m-d'), function($excel) use ($user, $date, $count){
+            $excel->sheet('members_sheet', function($sheet) use ($user, $date, $count){
+                $sheet  ->fromArray($user)
+                        ->prependRow(1, array('Altitude Gym'))
+                        ->prependRow(2, array('Members as of '.Carbon::parse(Carbon::now())->format('Y-m-d'), 'Member count: '.$count))
+                        ->setFontFamily("Courier")
+                        ->cells('A1:S1', function($cells) {
+                            $cells->setFontColor('#8000000');
+                            $cells->setFontFamily('Impact');
+                            $cells->setFontSize('24');
+                        })
+                        ->cells('A2:S2', function($cells) {
+                            $cells->setFontColor('#8000000');
+                        })
+                        ->cells('A3:S3', function($cells) {
+                            $cells->setFontColor('#FF00000');
+                            $cells->setFontWeight('bold');
+                        });
+                        //->setAutoFilter('A1:R1');
+            }); 
+        })->download('xls');
+
+        }
+
+
     }
+    
 }

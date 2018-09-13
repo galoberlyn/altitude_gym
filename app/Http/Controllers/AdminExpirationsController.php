@@ -187,9 +187,10 @@ class AdminExpirationsController extends Controller
         $print_4 = Input::has('4-selected') ? true : false;
         $print_5 = Input::has('5-selected') ? true : false;
         $print_6 = Input::has('6-selected') ? true : false;
-        $d = $request-> input('date');
-        $d2 = $request-> input('date2');
-        return redirect()->route('payments-export')->with('print_1', $print_1)->with('print_2', $print_2)->with('print_3', $print_3)->with('print_4', $print_4)->with('print_5', $print_5)->with('print_6', $print_6)->with('d', $d)->with('d2', $d2);
+        $year = Input::get('year');
+        $month = Input::get('month');
+        $day = Input::get('day');
+        return redirect()->route('payments-export')->with('print_1', $print_1)->with('print_2', $print_2)->with('print_3', $print_3)->with('print_4', $print_4)->with('print_5', $print_5)->with('print_6', $print_6)->with('year', $year)->with('month', $month)->with('day', $day);
     }
 
 
@@ -203,60 +204,44 @@ class AdminExpirationsController extends Controller
         if (session('print_4')) {array_push($print, "user_details.first_name AS First Name");}
         if (session('print_5')) {array_push($print, "user_details.last_name AS Last Name");}
         if (session('print_6')) {array_push($print, "user_record.amount AS Amount");}
-        $date = session('d');
-        $date2 = session('d2');
-        if ($date2 < $date && $date2 != ''){
-            return redirect ('reports')->with('error', 'The second date cannot be later than the first date!');
-        }
-        if ($date == ''){
-            $date = date('1990-01-01');
-        }
-        if ($date2 == ''){
-            $date2 = date('2999-12-31');
-        }
-        $user = User::select($print)
-        ->join('user_record','user_record.user_id','=','user.id')
-        ->join('user_details','user.id','=','user_details.user_id')
-        ->where('user_type','=','member')
-        ->where('expiration_date', '>=', $date)
-        ->where('expiration_date', '<=', $date2)
-        ->where('payment_status', '=', 'unpaid')
-        ->orderBy('user_record.id')
-        ->get();
+        $year = session('year');
+        $month = session('month');
+        $day = session('day');
+        $date = $year."-".$month."-".$day;
+        if ($year > 1999 && $month !=  'MM' && $day != 'DD'){$generate = true;}
+        if ($generate == true){
+            $user = User::select($print)
+            ->join('user_record','user_record.user_id','=','user.id')
+            ->join('user_details','user.id','=','user_details.user_id')
+            ->where('user_type','=','member')
+            ->where('expiration_date', '=', $date)
+            ->where('payment_status', '=', 'unpaid')
+            ->orderBy('user_record.id')
+            ->get();
 
-        $count = DB::table('user')
-        ->select(DB::raw("COUNT(user_record.id) AS count"))
-        ->join('user_record','user_record.user_id','=','user.id')
-        ->join('user_details','user.id','=','user_details.user_id')
-        ->where('user_type','=','member')
-        ->where('expiration_date', '>=', $date)
-        ->where('expiration_date', '<=', $date2)
-        ->where('payment_status', '=', 'unpaid')
-        ->value('count');
+            $count = DB::table('user')
+            ->select(DB::raw("COUNT(user_record.id) AS count"))
+            ->join('user_record','user_record.user_id','=','user.id')
+            ->join('user_details','user.id','=','user_details.user_id')
+            ->where('user_type','=','member')
+            ->where('expiration_date', '=', $date)
+            ->where('payment_status', '=', 'unpaid')
+            ->value('count');
 
-        $total = DB::table('user')
-        ->select(DB::raw("SUM(amount) AS count"))
-        ->join('user_record','user_record.user_id','=','user.id')
-        ->join('user_details','user.id','=','user_details.user_id')
-        ->where('user_type','=','member')
-        ->where('expiration_date', '>=', $date)
-        ->where('expiration_date', '<=', $date2)
-        ->where('payment_status', '=', 'unpaid')
-        ->value('count');
+            $total = DB::table('user')
+            ->select(DB::raw("SUM(amount) AS count"))
+            ->join('user_record','user_record.user_id','=','user.id')
+            ->join('user_details','user.id','=','user_details.user_id')
+            ->where('user_type','=','member')
+            ->where('expiration_date', '=', $date)
+            ->where('payment_status', '=', 'unpaid')
+            ->value('count');
 
-        if ($date == '1990-01-01'){
-            $date = 'FIRST';
-        }
-        if ($date2 == '2999-12-31'){
-            $date2 = 'LAST';
-        }
-
-
-        return Excel::create('payments-'.$date.'-'.$date2, function($excel) use ($user, $date, $date2, $count, $total){
-            $excel->sheet('payments_today', function($sheet) use ($user, $date, $date2, $count, $total){
+            return Excel::create('payments-'.$date, function($excel) use ($user, $date, $count, $total){
+            $excel->sheet('payments_today', function($sheet) use ($user, $date, $count, $total){
                 $sheet  ->fromArray($user)
                         ->prependRow(1, array('Altitude Gym'))
-                        ->prependRow(2, array('Memberships that expired on '.$date.' to '.$date2, 'No. of memberships: '.$count))
+                        ->prependRow(2, array('Memberships that expired on '.$date, 'No. of memberships: '.$count))
                         ->setFontFamily("Courier")
                         ->cells('A1:F1', function($cells) {
                             $cells->setFontColor('#8000000');
@@ -272,5 +257,52 @@ class AdminExpirationsController extends Controller
                         });
             }); 
         })->download('xls');
+        }else{
+            $user = User::select($print)
+            ->join('user_record','user_record.user_id','=','user.id')
+            ->join('user_details','user.id','=','user_details.user_id')
+            ->where('user_type','=','member')
+            ->where('payment_status', '=', 'unpaid')
+            ->orderBy('user_record.id')
+            ->get(); 
+
+            $count = DB::table('user')
+            ->select(DB::raw("COUNT(user_record.id) AS count"))
+            ->join('user_record','user_record.user_id','=','user.id')
+            ->join('user_details','user.id','=','user_details.user_id')
+            ->where('user_type','=','member')
+            ->where('payment_status', '=', 'unpaid')
+            ->value('count');
+
+            $total = DB::table('user')
+            ->select(DB::raw("SUM(amount)"))
+            ->join('user_record','user_record.user_id','=','user.id')
+            ->join('user_details','user.id','=','user_details.user_id')
+            ->where('user_type','=','member')
+            ->where('payment_status', '=', 'unpaid')
+            ->value('count');
+
+            return Excel::create('payments-ALL-'.Carbon::parse(Carbon::now())->format('Y-m-d'), function($excel) use ($user, $count, $total){
+            $excel->sheet('payments_sheet', function($sheet) use ($user, $count, $total){
+                $sheet  ->fromArray($user)
+                        ->prependRow(1, array('Altitude Gym'))
+                        ->prependRow(2, array('Memberships that expired as of '.Carbon::parse(Carbon::now())->format('Y-m-d'), 'No. of memberships:'.$count, 'Total uncollected amount: PHP '.$total))
+                        ->setFontFamily("Courier")
+                        ->cells('A1:F1', function($cells) {
+                            $cells->setFontColor('#8000000');
+                            $cells->setFontFamily('Impact');
+                            $cells->setFontSize('24');
+                        })
+                        ->cells('A2:F2', function($cells) {
+                            $cells->setFontColor('#8000000');
+                        })
+                        ->cells('A3:F3', function($cells) {
+                            $cells->setFontColor('#FF00000');
+                            $cells->setFontWeight('bold');
+                        });
+            }); 
+        })->download('xls');
+
+        }
     }
 }

@@ -67,7 +67,7 @@
                   <tr>
 
 
-                    <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{ $user-> id_number }} </td>
+                    <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{ $user-> user_id }} </td>
                     <td> <span class="avatar"><img src="../../uploads/avatars/{{ strtolower($user -> avatar) }}" alt="{{$user -> avatar}}"></img></span>    {{ $user-> first_name}} {{ $user-> last_name}} </td>
 
 

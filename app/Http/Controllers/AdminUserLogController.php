@@ -368,10 +368,10 @@ $active_members = DB::select("SELECT COUNT(status) as status from user_record in
         $print_4 = Input::has('4-selected') ? true : false;
         $print_5 = Input::has('5-selected') ? true : false;
         $print_6 = Input::has('6-selected') ? true : false;
-        $d = $request-> input('date');
-        $d2 = $request-> input('date2');
-
-        return redirect()->route('log-export')->with('print_1', $print_1)->with('print_2', $print_2)->with('print_3', $print_3)->with('print_4', $print_4)->with('print_5', $print_5)->with('print_6', $print_6)->with('d', $d)->with('d2', $d2);
+        $year = Input::get('year');
+        $month = Input::get('month');
+        $day = Input::get('day');
+        return redirect()->route('log-export')->with('print_1', $print_1)->with('print_2', $print_2)->with('print_3', $print_3)->with('print_4', $print_4)->with('print_5', $print_5)->with('print_6', $print_6)->with('year', $year)->with('month', $month)->with('day', $day);
     }
 
     public function logExport()
@@ -384,23 +384,17 @@ $active_members = DB::select("SELECT COUNT(status) as status from user_record in
         if (session('print_4')) {array_push($print, 'user_details.last_name AS Last Name');}
         if (session('print_5')) {array_push($print, 'user_log.time_in AS Time In');}
         if (session('print_6')) {array_push($print, 'user_log.time_out AS Time Out');}
-        $date = session('d');
-        $date2 = session('d2');
-        if ($date2 < $date && $date2 != ''){
-            return redirect ('reports')->with('error', 'The second date cannot be later than the first date!');
-        }
-        if ($date == ''){
-            $date = date('1990-01-01');
-        }
-        if ($date2 == ''){
-            $date2 = date('2999-12-31');
-        }
+        $year = session('year');
+        $month = session('month');
+        $day = session('day');
+        $date = $year."-".$month."-".$day;
+        if ($year > 1999 && $month !=  'MM' && $day != 'DD'){$generate = true;}
+        if ($generate == true){
             $user = User_detail::select($print)
             ->join('user_log','user_details.user_id','=','user_log.user_id')
             ->join('user','user.id','=','user_details.user_id')
             ->where('user_type','=','member')
-            ->where('date_recorded', '>=', $date)
-            ->where('date_recorded', '<=', $date2)
+            ->where('date_recorded', '=', $date)
             ->orderBy('user_log.time_in', 'ASC')
             ->get(); 
 
@@ -409,8 +403,7 @@ $active_members = DB::select("SELECT COUNT(status) as status from user_record in
             ->join('user_log','user_details.user_id','=','user_log.user_id')
             ->join('user','user.id','=','user_details.user_id')
             ->where('user_type','=','member')
-            ->where('date_recorded', '>=', $date)
-            ->where('date_recorded', '<=', $date2)
+            ->where('date_recorded', '=', $date)
             ->value('count');
 
             $user_count = DB::table('user_details')
@@ -418,43 +411,86 @@ $active_members = DB::select("SELECT COUNT(status) as status from user_record in
             ->join('user_log','user_details.user_id','=','user_log.user_id')
             ->join('user','user.id','=','user_details.user_id')
             ->where('user_type','=','member')
-            ->where('date_recorded', '>=', $date)
-            ->where('date_recorded', '<=', $date2)
+            ->where('date_recorded', '=', $date)
             ->value('count');
 
             $in_gym = DB::table('user_log')
             ->select(DB::raw("COUNT(4) AS count"))
-            ->whereRaw("time_out IS NULL AND date_recorded >= '".$date."'")
+            ->whereRaw("time_out IS NULL AND date = '".$date."'")
             ->value('count');
 
-            if ($date == '1990-01-01'){
-                $date = 'FIRST';
-            }
-            if ($date2 == '2999-12-31'){
-                $date2 = 'LAST';
-            }
-
-            return Excel::create('log-'.$date.'-'.$date2, function($excel) use ($user, $date, $date2, $count, $user_count, $in_gym){
-            $excel->sheet('log_today', function($sheet) use ($user, $date, $date2, $count, $user_count, $in_gym){
-                $sheet
-                ->fromArray($user)
-                ->prependRow(1, array('Altitude Gym'))
-                ->prependRow(2, array('Members log from '.$date.' to '.$date2, 'Entry count: '.$count, 'User count: '.$user_count, 'Have Not Timed Out: '.$in_gym))
-                ->prependRow(3, array())
-                ->setFontFamily("Courier")
-                ->cells('A1:S1', function($cells) {
-                    $cells->setFontColor('#8000000');
-                    $cells->setFontFamily('Impact');
-                    $cells->setFontSize('24');
-                })
-                ->cells('A2:S2', function($cells) {
-                    $cells->setFontColor('#8000000');
-                })
-                ->cells('A4:S4', function($cells) {
-                    $cells->setFontColor('#FF00000');
-                    $cells->setFontWeight('bold');
-                });
+            return Excel::create('log-'.$date, function($excel) use ($user, $date, $count, $user_count, $in_gym){
+            $excel->sheet('log_today', function($sheet) use ($user, $date, $count, $user_count, $in_gym){
+                $sheet  ->fromArray($user)
+                        ->prependRow(1, array('Altitude Gym'))
+                        ->prependRow(2, array('Members log of '.$date, 'Entry count: '.$count, 'User count: '.$user_count, 'Have Not Timed Out: '.$in_gym))
+                        ->prependRow(3, array())
+                        ->setFontFamily("Courier")
+                        ->cells('A1:S1', function($cells) {
+                            $cells->setFontColor('#8000000');
+                            $cells->setFontFamily('Impact');
+                            $cells->setFontSize('24');
+                        })
+                        ->cells('A2:S2', function($cells) {
+                            $cells->setFontColor('#8000000');
+                        })
+                        ->cells('A4:S4', function($cells) {
+                            $cells->setFontColor('#FF00000');
+                            $cells->setFontWeight('bold');
+                        });
+                        //->s
             });
         })->download('xls');
+        }else{
+            $user = User_detail::select($print)
+            ->join('user_log','user_details.user_id','=','user_log.user_id')
+            ->join('user','user.id','=','user_details.user_id')
+            ->where('user_type','=','member')
+            ->orderBy('user_log.time_in', 'ASC')
+            ->get(); 
+
+            $count = DB::table('user_details')
+            ->select(DB::raw("COUNT(user_log.id) AS count"))
+            ->join('user_log','user_details.user_id','=','user_log.user_id')
+            ->join('user','user.id','=','user_details.user_id')
+            ->where('user_type','=','member')
+            ->value('count');
+
+            $user_count = DB::table('user_details')
+            ->select(DB::raw("COUNT(DISTINCT user_details.user_id) AS count"))
+            ->join('user_log','user_details.user_id','=','user_log.user_id')
+            ->join('user','user.id','=','user_details.user_id')
+            ->where('user_type','=','member')
+            ->value('count');
+
+            $in_gym = DB::table('user_log')
+            ->select(DB::raw("COUNT(4) AS count"))
+            ->whereRaw('time_out IS NULL')
+            ->value('count');
+
+            return Excel::create('log-ALL-'.Carbon::parse(Carbon::now())->format('Y-m-d'), function($excel) use ($user, $date, $count, $user_count, $in_gym){
+            $excel->sheet('members_sheet', function($sheet) use ($user, $date, $count, $user_count, $in_gym){
+                $sheet  ->fromArray($user)
+                        ->prependRow(1, array('Altitude Gym'))
+                        ->prependRow(2, array('Member log as of '.Carbon::parse(Carbon::now())->format('Y-m-d'), 'Entry count: '.$count, 'User count: '.$user_count, 'Have Not Timed Out: '.$in_gym))
+                        ->prependRow(3, array())
+                        ->setFontFamily("Courier")
+                        ->cells('A1:S1', function($cells) {
+                            $cells->setFontColor('#8000000');
+                            $cells->setFontFamily('Impact');
+                            $cells->setFontSize('24');
+                        })
+                        ->cells('A2:S2', function($cells) {
+                            $cells->setFontColor('#8000000');
+                        })
+                        ->cells('A4:S4', function($cells) {
+                            $cells->setFontColor('#FF00000');
+                            $cells->setFontWeight('bold');
+                        });
+                        //->setAutoFilter('A1:R1');
+            }); 
+        })->download('xls');
+
+        }
     }
 }

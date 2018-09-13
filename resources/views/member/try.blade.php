@@ -1,15 +1,12 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title></title>
+  <title></title>
 </head>
 <body>
-<!-- <ul>
-	@foreach($profile as $prof)
-	<li>{{$profile->username}}</li>
-	@endforeach
-</ul> -->
-
-	
+<form action="/trylang" method="POST">
+  {{csrf_field()}}
+  <button type="submit"> Populate Stats </button>
+</form>
 </body>
 </html>

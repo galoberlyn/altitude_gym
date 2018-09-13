@@ -45,22 +45,13 @@
                     <fieldset>
             <h4 class="form-section"><i class="icon-profile"></i>Details</h4>
               <div class="form-group">
-
-                <div class="form-group">
-                {{Form::label('', '* = required')}}
-                <div class="form-control-position">
-                        <i class="icon-credit-card2 warning"></i>
-                      </div>
-                  </div> 
-
-                {{Form::label('user_type', 'User type *')}}
+                {{Form::label('user_type', 'User type')}}
                 <div class="position-relative has-icon-left">
                     {{Form::select('user_type', array('member' => 'member', 'manager' => 'manager', 'admin' => 'admin'),'', ['class' => 'round border-success'])}}
                 </div>
               </div>
                 
-
-                <div class="form-group">
+				<div class="form-group">
                 {{Form::label('rfid_number', 'RFID Number')}}
                 <div class="position-relative has-icon-left">
                 {{Form::text('rfid_number', '', ['class' => 'form-control round border-success', 'placeholder' => 'ex. 2102456'])}}
@@ -68,10 +59,10 @@
                         <i class="icon-credit-card2 warning"></i>
                       </div>
                   </div> 
-                </div> 
-
+                </div>    
+							  
                <div class="form-group">
-                {{Form::label('id_number', 'ID Number *')}}
+                {{Form::label('id_number', 'ID Number')}}
                 <div class="position-relative has-icon-left">
                 {{Form::text('id_number', '', ['class' => 'form-control round border-success', 'placeholder' => 'ex. 2102456'])}}
                 <div class="form-control-position">
@@ -81,7 +72,7 @@
                 </div>
 			
                 <div class="form-group">
-                {{Form::label('first_name', 'First name *')}}
+                {{Form::label('first_name', 'First name')}}
                   <div class="position-relative has-icon-left">
                       {{Form::text('first_name', '', ['class' => 'form-control round border-success', 'placeholder' => "The user's first name"])}}
                       <div class="form-control-position">
@@ -91,7 +82,7 @@
                 </div>
                
               <div class="form-group">
-                {{Form::label('middle_initial', 'Middle initial *')}}
+                {{Form::label('middle_initial', 'Middle initial')}}
                 <div class="position-relative has-icon-left">
                     {{Form::text('middle_initial', '', ['class' => 'form-control round border-success', 'placeholder' => "The user's middle initial"])}}
                     <div class="form-control-position">
@@ -101,7 +92,7 @@
               </div>
               
               <div class="form-group">
-                {{Form::label('last_name', 'Last name *')}}
+                {{Form::label('last_name', 'Last name')}}
                 <div class="position-relative has-icon-left">
                     {{Form::text('last_name', '', ['class' => 'form-control round border-success', 'placeholder' => "The user's last name"])}}
                     <div class="form-control-position">
@@ -122,7 +113,7 @@
               
               <div class="col-md-6">
               <div class="form-group">
-                {{Form::label('sex', 'Sex *')}}
+                {{Form::label('sex', 'Sex')}}
                 <div class="position-relative has-icon-left">
                     {{Form::select('sex', array('male' => 'male', 'female' => 'female'),'', ['class' => 'form-control round border-success'])}}
                     <div class="form-control-position">
@@ -133,7 +124,7 @@
               </div>
               <div class="col-md-6">
               <div class="form-group">
-                {{Form::label('birthdate', 'Birthdate *')}}
+                {{Form::label('birthdate', 'Birthdate')}}
                 <div class="position-relative has-icon-left">
                     {{Form::date('birthdate','', ['class' => 'form-control round border-success'])}}
                     <div class="form-control-position">
@@ -145,7 +136,7 @@
               
               <div class="col-md-6">
               <div class="form-group">
-                {{Form::label('civil_status', 'Civil status *')}}
+                {{Form::label('civil_status', 'Civil status')}}
                 <div class="position-relative has-icon-left">
                     {{Form::select('civil_status', array('single' => 'single', 'married' => 'married', 'widowed' => 'widowed', 'separated' => 'separated'),'', ['class' => 'form-control round border-success'])}}
                     <div class="form-control-position">
@@ -156,7 +147,7 @@
               </div>
               <div class="col-md-6">
               <div class="form-group">
-                {{Form::label('used_gym', 'Gym Experience *')}}
+                {{Form::label('used_gym', 'Gym Experience')}}
                 <div class="position-relative has-icon-left">
                     {{Form::select('used_gym', array('yes' => 'yes', 'no' => 'no'),'', ['class' => 'form-control round border-success'])}}
                     <div class="form-control-position">
@@ -167,7 +158,7 @@
               </div>
               
               <div class="form-group">
-                {{Form::label('occupation', 'Occupation *')}}
+                {{Form::label('occupation', 'Occupation')}}
                 <div class="position-relative has-icon-left">
                     {{Form::text('occupation', '', ['class' => 'form-control round border-success', 'placeholder' => "The user's occupation (enter either 'student' or their profession)"])}}
                     <div class="form-control-position">
@@ -177,7 +168,7 @@
               </div>
 
               <div class="form-group">
-                 {{Form::label('school_workplace', 'School or workplace *')}}
+                 {{Form::label('school_workplace', 'School or workplace')}}
                 <div class="position-relative has-icon-left">
                     {{Form::text('school_workplace', '', ['class' => 'form-control round border-success', 'placeholder' => "The user's school or user's workplace"])}}
                     <div class="form-control-position">
@@ -187,7 +178,7 @@
               </div>
               
               <div class="form-group">
-                 {{Form::label('medical_condition', 'Special Medical condition *')}}
+                 {{Form::label('medical_condition', 'Special Medical condition')}}
                 <div class="position-relative has-icon-left">
                     {{Form::textarea('medical_condition', '', ['class' => 'form-control round border-success', 'placeholder' => "The user's special medical condition (leave the textarea blank when the user has no noteworthy medical condition)"])}}
                     <div class="form-control-position">
@@ -225,7 +216,7 @@
             <h4 class="form-section"><i class="icon-mail6"></i>Contact</h4>
 
               <div class="form-group">
-                     {{Form::label('address', 'Address *')}}
+                     {{Form::label('address', 'Address')}}
                 <div class="position-relative has-icon-left">
                     {{Form::text('address', '', ['class' => 'form-control round border-info', 'placeholder' => "The user's address"])}}
                     <div class="form-control-position">
@@ -235,7 +226,7 @@
               </div>
               
               <div class="form-group">
-                     {{Form::label('contact_no', 'Contact number *')}}
+                     {{Form::label('contact_no', 'Contact number')}}
                 <div class="position-relative has-icon-left">
                     {{Form::text('contact_no', '', ['class' => 'form-control round border-info', 'placeholder' => "The user's contact number"])}}
                     <div class="form-control-position">
@@ -245,7 +236,7 @@
               </div>
               
               <div class="form-group">
-                     {{Form::label('emergency_contact', 'Emergency contact *')}}
+                     {{Form::label('emergency_contact', 'Emergency contact')}}
                 <div class="position-relative has-icon-left">
                     {{Form::text('emergency_contact', '', ['class' => 'form-control round border-info', 'placeholder' => "The user's contact in case of an emergency"])}}
                     <div class="form-control-position">
@@ -255,7 +246,7 @@
               </div>
               
               <div class="form-group">
-                     {{Form::label('emergency_no', 'Emergency no *')}}
+                     {{Form::label('emergency_no', 'Emergency no')}}
                 <div class="position-relative has-icon-left">
                      {{Form::text('emergency_no', '', ['class' => 'form-control round border-info', 'placeholder' => "The emergency contact's contact number"])}}
                     <div class="form-control-position">

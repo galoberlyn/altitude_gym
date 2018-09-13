@@ -41,6 +41,7 @@ class confirmationController extends Controller {
         ->orderBy('userworkout_validation.user_id')
         ->paginate(15);
 
+        // UPDATE 4/26/2018
         $list_confirm = DB::table('userworkout_validation')
                 ->distinct()
                 ->select('userworkout_validation.user_id', 'first_name', 'last_name', 'type')
@@ -52,6 +53,8 @@ class confirmationController extends Controller {
                             ->distinct()
                             ->select(DB::raw("date(created_at) as date2"), 'user_id')
                             ->get();
+
+      
 
         return view ('ManagerModule/confirmation', compact('notification','exp_date','member','active_members','point_status', 'list_confirm', 'list_confirm_date'));
 
@@ -87,18 +90,6 @@ class confirmationController extends Controller {
         ->where('userworkout_validation.status', '=', 'for_validation')
         ->orderBy('userworkout_validation.user_id')
         ->paginate(15);
-
-        $list_confirm = DB::table('userworkout_validation')
-                ->distinct()
-                ->select('userworkout_validation.user_id', 'first_name', 'last_name', 'type')
-                ->join('user_details', 'user_details.user_id', '=', 'userworkout_validation.user_id')
-                ->where('status', '=', "for_validation")
-                ->get();
-
-        $list_confirm_date = DB::table('userworkout_validation')
-                            ->distinct()
-                            ->select(DB::raw("date(created_at) as date2"), 'user_id')
-                            ->get();
 
         $current = Auth::id();
 
@@ -139,7 +130,7 @@ class confirmationController extends Controller {
 
         return redirect('/confirmation')->with('success', 'Members request has been accepted!');
 
-        return view ('ManagerModule/confirmation', compact('user', 'notification','exp_date','member','active_members','rendered','point_status', 'list_confirm', 'list_confirm_date'));
+        return view ('ManagerModule/confirmation', compact('user', 'notification','exp_date','member','active_members','rendered','point_status'));
 
 
     }
@@ -228,19 +219,7 @@ class confirmationController extends Controller {
         //count active members
     $active_members = DB::select("SELECT COUNT(status) as status from user_record INNER JOIN user ON user.id=user_record.user_id where status = 'active' AND user_type = 'member'");
 
-    $list_confirm = DB::table('userworkout_validation')
-                ->distinct()
-                ->select('userworkout_validation.user_id', 'first_name', 'last_name', 'type')
-                ->join('user_details', 'user_details.user_id', '=', 'userworkout_validation.user_id')
-                ->where('status', '=', "for_validation")
-                ->get();
-
-        $list_confirm_date = DB::table('userworkout_validation')
-                            ->distinct()
-                            ->select(DB::raw("date(created_at) as date2"), 'user_id')
-                            ->get();
-
-    return view ('ManagerModule/confirmation', compact('notification','exp_date','member','active_members','point_status', 'list_confirm', 'list_confirm_date'));
+    return view ('ManagerModule/confirmation', compact('notification','exp_date','member','active_members','point_status'));
 
 }
 
@@ -281,19 +260,7 @@ public function sorting_confirm() {
     ->orderBy('notifications.created_at')
     ->get(); 
 
-    $list_confirm = DB::table('userworkout_validation')
-                ->distinct()
-                ->select('userworkout_validation.user_id', 'first_name', 'last_name', 'type')
-                ->join('user_details', 'user_details.user_id', '=', 'userworkout_validation.user_id')
-                ->where('status', '=', "for_validation")
-                ->get();
-
-        $list_confirm_date = DB::table('userworkout_validation')
-                            ->distinct()
-                            ->select(DB::raw("date(created_at) as date2"), 'user_id')
-                            ->get();
-
-    return view ('ManagerModule/confirmation', compact('point_status','notification', 'exp_date', 'users', 'available', 'member', 'active_members', 'list_confirm', 'list_confirm_date'));
+    return view ('ManagerModule/confirmation', compact('point_status','notification', 'exp_date', 'users', 'available', 'member', 'active_members'));
 }
 
 public function accept_conf_name(Request $request){
